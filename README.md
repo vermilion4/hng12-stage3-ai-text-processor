@@ -1,6 +1,6 @@
 # Cosmic AI Text Processor
 
-A Space themed Next.js application that provides AI-powered text processing capabilities including language detection, translation between supported languages, and text summarization.
+A Space-themed Next.js application that provides AI-powered text processing capabilities including language detection, translation between supported languages, and text summarization using Chrome's built-in APIs.
 
 ![Cosmic AI Text Processor Preview](./public/cosmic-ai-text-processor.png)
 
