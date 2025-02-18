@@ -98,11 +98,11 @@ const MessageTextArea = ({ setMessages, setMessageStates, supportedLanguages, in
               setText(e.target.value);
               setInputError(''); // Clear error when user starts typing
             }}
-            className={`w-full p-6 pr-16 rounded-2xl bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-md border-2 ${
+            className={`w-full px-4 py-2 pr-7 sm:pr-16 rounded-2xl bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-md border-2 ${
               inputError ? 'border-red-500/50' : 'border-indigo-500/30 hover:border-indigo-400/50 focus:border-indigo-500/50'
             } focus:ring-2 focus:ring-indigo-500/40 outline-none resize-none text-gray-200 shadow-lg transition-all duration-200 text-sm sm:text-base`}
             placeholder="Type your message in your language of choice..."
-            rows={3}
+            rows={5}
             style={{
               boxShadow: inputError ? "0 0 30px rgba(239, 68, 68, 0.15)" : "0 0 30px rgba(99, 102, 241, 0.15)"
             }}

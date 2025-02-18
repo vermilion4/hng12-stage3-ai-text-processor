@@ -17,6 +17,17 @@ const MessageActions = ({messages, messageStates, setMessageStates, supportedLan
       return;
     }
 
+    if (sourceLanguage === targetLanguage) {
+      setMessageStates(prev => ({
+        ...prev,
+        [messageId]: {
+          ...prev[messageId],
+          isTranslating: false,
+          translationError: 'Source and target languages cannot be the same.'
+        }
+      }));
+      return;
+    }
     // Reset any previous translation errors
     setMessageStates(prev => ({
       ...prev,
@@ -57,7 +68,8 @@ const MessageActions = ({messages, messageStates, setMessageStates, supportedLan
         [messageId]: {
           ...prev[messageId],
           isTranslating: false,
-          translationError: `Translation error: ${error}`
+          // translationError: `Translation error: ${error}`
+          translationError: `Something went wrong translating your message. Please try again.`
         }
       }));
     }
@@ -118,7 +130,7 @@ const MessageActions = ({messages, messageStates, setMessageStates, supportedLan
     }));
 
     try {
-      const summarizer = await ai.summarizer.create({
+      const summarizer = await self.ai.summarizer.create({
         monitor(m) {
           m.addEventListener('downloadprogress', (e) => {
             console.log(`Downloaded ${e.loaded} of ${e.total} bytes.`);
@@ -144,7 +156,8 @@ const MessageActions = ({messages, messageStates, setMessageStates, supportedLan
         [messageId]: {
           ...prev[messageId],
           isSummarizing: false,
-          summaryError: `Summary error: ${error}`
+          // summaryError: `Summary error: ${error}`
+          summaryError: `Something went wrong summarizing your message. Please try again.`
         }
       }));
     }
