@@ -1,3 +1,5 @@
+'use client'
+
 import React, { useState } from 'react'
 
 const MessageTextArea = ({ setMessages, setMessageStates, supportedLanguages, inputError, setInputError }) => {
@@ -98,7 +100,7 @@ const MessageTextArea = ({ setMessages, setMessageStates, supportedLanguages, in
             }}
             className={`w-full p-6 pr-16 rounded-2xl bg-gradient-to-br from-gray-800/80 to-gray-900/80 backdrop-blur-md border-2 ${
               inputError ? 'border-red-500/50' : 'border-indigo-500/30 hover:border-indigo-400/50 focus:border-indigo-500/50'
-            } focus:ring-2 focus:ring-indigo-500/40 outline-none resize-none text-gray-200 shadow-lg transition-all duration-200`}
+            } focus:ring-2 focus:ring-indigo-500/40 outline-none resize-none text-gray-200 shadow-lg transition-all duration-200 text-sm sm:text-base`}
             placeholder="Type your message in your language of choice..."
             rows={3}
             style={{

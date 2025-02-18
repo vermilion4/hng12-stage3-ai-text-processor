@@ -1,6 +1,6 @@
 import React from 'react'
 
-const MessageActions = ({messages, messageStates, setMessageStates, supportedLanguages}) => {
+const MessageActions = ({messages, messageStates, setMessageStates, supportedLanguages, msg}) => {
   const handleTranslate = async(messageId, sourceLanguage, targetLanguage) => {
     const message = messages.find(msg => msg.id === messageId);
     if (!message) return;
