@@ -1,11 +1,61 @@
 "use client";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import MessageOutput from "./components/MessageOutput";
 import MessageTextArea from "./components/MessageTextArea";
 
 export default function Home() {
-  const [messages, setMessages] = useState([]);
-  const [messageStates, setMessageStates] = useState({});
+  const [isLoading, setIsLoading] = useState(true);
+  const mainRef = useRef(null);
+
+  const [messages, setMessages] = useState(() => {
+    // Get messages from localStorage if available
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('messages');
+      return saved ? JSON.parse(saved) : [];
+    }
+    return [];
+  });
+
+  const [messageStates, setMessageStates] = useState(() => {
+    // Get messageStates from localStorage if available
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('messageStates');
+      return saved ? JSON.parse(saved) : {};
+    }
+    return {};
+  });
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (mainRef.current) {
+      mainRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem('messages', JSON.stringify(messages));
+  }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem('messageStates', JSON.stringify(messageStates));
+  }, [messageStates]);
+
+  // Handle initial loading state
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Scroll to bottom after loading completes
+  useEffect(() => {
+    if (!isLoading && mainRef.current) {
+      mainRef.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+    }
+  }, [isLoading]);
+
   const [inputError, setInputError] = useState('');
 
   const supportedLanguages = [
@@ -49,8 +99,16 @@ export default function Home() {
     </svg>
   );
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-slate-900 to-black">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-rows-[10px_1fr_10px] items-center justify-items-center min-h-screen p-3 gap-8 sm:p-10 font-[family-name:var(--font-geist-sans)] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-slate-900 to-black pb-6 relative">
+    <div ref={mainRef} className="grid grid-rows-[10px_1fr_10px] items-center justify-items-center min-h-screen p-3 gap-8 sm:p-10 font-[family-name:var(--font-geist-sans)] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-slate-900 to-black pb-6 relative">
       {stars.map(star => (
         <div key={star.id} className="absolute" style={{ top: star.top, left: star.left, animation: star.animation }}>
           <Star style={{ transform: `rotate(${Math.random() * 360}deg)` }} />
@@ -80,7 +138,7 @@ export default function Home() {
 
         {/* Input Error Display Section */}
         {inputError && (
-            <p className=" text-red-400 text-sm mt-2">{inputError}</p>
+            <p className="text-red-400 text-sm mt-2">{inputError}</p>
           )}
       </main>
 

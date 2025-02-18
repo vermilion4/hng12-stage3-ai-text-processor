@@ -45,7 +45,7 @@ const MessageOutput = ({
   return (
     <div
       ref={chatOutputRef}
-      className="flex-1 bg-gray-900/30 backdrop-blur-lg rounded-lg p-6 mb-6 overflow-y-auto border border-indigo-500/20 shadow-[0_0_50px_-12px] shadow-indigo-500/30 h-[500px]"
+      className="flex-1 bg-gray-900/30 backdrop-blur-lg rounded-lg p-6 mb-6 overflow-y-auto border border-indigo-500/20 shadow-[0_0_50px_-12px] shadow-indigo-500/30 max-h-[500px]"
     >
       <div className="space-y-6" id="chat-output">
         {messages.length > 0 ? (
