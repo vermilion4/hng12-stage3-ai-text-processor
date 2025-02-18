@@ -27,8 +27,8 @@ A Space-themed Next.js application that provides AI-powered text processing capa
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/vermilion4/ai-text-processor.git
-cd ai-text-processor
+git clone https://github.com/vermilion4/hng12-stage3-ai-text-processor.git
+cd hng12-stage3-ai-text-processor
 ```
 
 2. Install dependencies:
