@@ -83,10 +83,8 @@ const MessageTextArea = ({ setMessages, setMessageStates, supportedLanguages, in
     // Add message to messages array
     setMessages(prev => [...prev, { id: messageId, text: text }]);
     
-    // Start language detection immediately with the text
     await handleDetect(messageId, text);
     
-    // Clear input
     setText('');
   }
 
