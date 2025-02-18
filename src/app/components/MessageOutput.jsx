@@ -44,7 +44,7 @@ const MessageOutput = ({
     if (chatOutputRef.current) {
       chatOutputRef.current.scrollTop = chatOutputRef.current.scrollHeight;
     }
-  }, [messages, messageStates]);
+  }, [messages]);
 
   return (
     <>
