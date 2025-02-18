@@ -57,7 +57,7 @@ const MessageActions = ({messages, messageStates, setMessageStates, supportedLan
         [messageId]: {
           ...prev[messageId],
           isTranslating: false,
-          translationError: 'An error occurred during translation. Please try again.'
+          translationError: `Translation error: ${error}`
         }
       }));
     }
@@ -144,7 +144,7 @@ const MessageActions = ({messages, messageStates, setMessageStates, supportedLan
         [messageId]: {
           ...prev[messageId],
           isSummarizing: false,
-          summaryError: 'An error occurred during summarization. Please try again.'
+          summaryError: `Summary error: ${error}`
         }
       }));
     }
