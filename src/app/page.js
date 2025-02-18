@@ -146,7 +146,7 @@ export default function Home() {
       <footer className="row-start-3 flex gap-6 mt-2 flex-wrap items-center justify-center text-indigo-200/70">
         <a
           className="flex items-center gap-2 hover:underline hover:underline-offset-4 hover:text-indigo-200"
-          href="https://github.com/vermilion4/ai-text-processor"
+          href="https://github.com/vermilion4/hng12-stage3-ai-text-processor"
           target="_blank"
           rel="noopener noreferrer"
         >
