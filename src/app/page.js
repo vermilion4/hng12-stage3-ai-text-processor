@@ -74,7 +74,6 @@ export default function Home() {
       id: i,
       top: `${Math.random() * 90}%`,
       left: `${Math.random() * 90}%`,
-      animation: `twinkle ${2 + Math.random() * 2}s infinite ${Math.random() * 2}s`
     }));
   }, []);
 
@@ -89,6 +88,7 @@ export default function Home() {
       stroke="#000000"
       strokeWidth="0.91086"
       style={style}
+      className="animate-pulse"
     >
       <g id="SVGRepo_iconCarrier">
         <path
@@ -110,7 +110,7 @@ export default function Home() {
   return (
     <div ref={mainRef} className="grid grid-rows-[10px_1fr_10px] items-center justify-items-center min-h-screen p-3 gap-8 sm:p-10 font-[family-name:var(--font-geist-sans)] bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-gray-900 via-slate-900 to-black pb-6 relative">
       {stars.map(star => (
-        <div key={star.id} className="absolute" style={{ top: star.top, left: star.left, animation: star.animation }}>
+        <div key={star.id} className="absolute" style={{ top: star.top, left: star.left}}>
           <Star style={{ transform: `rotate(${Math.random() * 360}deg)` }} />
         </div>
       ))}
