@@ -13,6 +13,17 @@ const MessageActions = ({
   const handleTranslate = async (messageId, sourceLanguage, targetLanguage) => {
     const message = messages.find((msg) => msg.id === messageId);
     if (!message) return;
+    if (!sourceLanguage || !targetLanguage) {
+      setMessageStates((prev) => ({
+        ...prev,
+        [messageId]: {
+          ...prev[messageId],
+          isTranslating: false,
+          translationError: "Missing source or target language.",
+        },
+      }));
+      return;
+    }
 
     // Check if browser supports translation API
     if (!('ai' in self && 'translator' in self.ai)) {
