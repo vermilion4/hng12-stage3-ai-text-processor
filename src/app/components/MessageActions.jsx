@@ -32,7 +32,7 @@ const MessageActions = ({
         [messageId]: {
           ...prev[messageId],
           isTranslating: false,
-          translationError: "Your browser doesn't support the Translation API. Please update to a compatible browser like Chrome.",
+          translationError: "Your browser doesn't support the Translation API. Please update or switch to a compatible browser like Chrome Canary.",
         },
       }));
       return;

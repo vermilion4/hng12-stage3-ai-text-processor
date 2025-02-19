@@ -21,7 +21,7 @@ const SummaryOptionsModal = ({messages, selectedMessageId, setMessageStates, set
         [messageId]: {
           ...prev[messageId],
           isSummarizing: false,
-          summaryError: "Your browser doesn't support the Summarization API. Please update to a compatible browser like Chrome."
+          summaryError: "Your browser doesn't support the Summarization API. Please update or switch to a compatible browser like Chrome Canary."
         }
       }));
       return;

@@ -17,7 +17,7 @@ const MessageTextArea = ({ setMessages, setMessageStates, supportedLanguages, in
           detectedLanguageLabel: '',
           isDetecting: false,
           isSupported: false,
-          detectionError: "Your browser doesn't support the Language Detection API. Please update to a compatible browser like Chrome."
+          detectionError: "Your browser doesn't support the Language Detection API. Please update or switch to a compatible browser like Chrome Canary."
         }
       }));
       return;
