@@ -14,6 +14,19 @@ const MessageActions = ({
     const message = messages.find((msg) => msg.id === messageId);
     if (!message) return;
 
+    // Check if browser supports translation API
+    if (!('ai' in self && 'translator' in self.ai)) {
+      setMessageStates((prev) => ({
+        ...prev,
+        [messageId]: {
+          ...prev[messageId],
+          isTranslating: false,
+          translationError: "Your browser doesn't support the Translation API. Please update to a compatible browser like Chrome.",
+        },
+      }));
+      return;
+    }
+
     if (!messageStates[messageId]?.isSupported) {
       setMessageStates((prev) => ({
         ...prev,
@@ -38,17 +51,34 @@ const MessageActions = ({
       }));
       return;
     }
-    // Reset any previous translation errors
-    setMessageStates((prev) => ({
-      ...prev,
-      [messageId]: {
-        ...prev[messageId],
-        isTranslating: true,
-        translationError: null,
-      },
-    }));
 
+    // Check if language pair is available
     try {
+      const translatorCapabilities = await self.ai.translator.capabilities();
+      const pairAvailability = await translatorCapabilities.languagePairAvailable(sourceLanguage, targetLanguage);
+      
+      if (pairAvailability !== 'readily') {
+        setMessageStates((prev) => ({
+          ...prev,
+          [messageId]: {
+            ...prev[messageId],
+            isTranslating: false,
+            translationError: "This language pair is not currently supported for translation.",
+          },
+        }));
+        return;
+      }
+
+      // Reset any previous translation errors
+      setMessageStates((prev) => ({
+        ...prev,
+        [messageId]: {
+          ...prev[messageId],
+          isTranslating: true,
+          translationError: null,
+        },
+      }));
+
       const translator = await self.ai.translator.create({
         sourceLanguage,
         targetLanguage,

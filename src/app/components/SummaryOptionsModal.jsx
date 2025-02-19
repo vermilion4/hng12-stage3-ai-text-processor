@@ -7,12 +7,25 @@ const SummaryOptionsModal = ({messages, selectedMessageId, setMessageStates, set
     format: 'markdown', 
     length: 'medium'
   });
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   // handle summary
   const handleSummary = async (messageId) => {
-    setShowSummaryModal(false);
     const message = messages.find(msg => msg.id === messageId);
     if (!message) return;
+
+    // Check if browser supports summarization API
+    if (!('ai' in self && 'summarizer' in self.ai)) {
+      setMessageStates(prev => ({
+        ...prev,
+        [messageId]: {
+          ...prev[messageId],
+          isSummarizing: false,
+          summaryError: "Your browser doesn't support the Summarization API. Please update to a compatible browser like Chrome."
+        }
+      }));
+      return;
+    }
 
     setMessageStates(prev => ({
       ...prev,
@@ -24,9 +37,41 @@ const SummaryOptionsModal = ({messages, selectedMessageId, setMessageStates, set
     }));
 
     try {
-      const summarizer = await self.ai.summarizer.create({
-        ...summaryOptions
-      });
+      // Check summarizer capabilities
+      const summarizerCapabilities = await self.ai.summarizer.capabilities();
+      const canSummarize = summarizerCapabilities.available;
+
+      if (canSummarize === 'no') {
+        setMessageStates(prev => ({
+          ...prev,
+          [messageId]: {
+            ...prev[messageId],
+            isSummarizing: false,
+            summaryError: "Summarization is not available at the moment. Please try again later."
+          }
+        }));
+        return;
+      }
+
+      let summarizer;
+      if (canSummarize === 'readily') {
+        summarizer = await self.ai.summarizer.create({
+          ...summaryOptions
+        });
+      } else {
+        // Need to download model first
+        setDownloadProgress(0);
+        summarizer = await self.ai.summarizer.create({
+          ...summaryOptions,
+          monitor(m) {
+            m.addEventListener('downloadprogress', (e) => {
+              const progress = Math.round((e.loaded / e.total) * 100);
+              setDownloadProgress(progress);
+            });
+          },
+        });
+        await summarizer.ready;
+      }
 
       const result = await summarizer.summarize(message.text);
       setMessageStates(prev => ({
@@ -39,16 +84,18 @@ const SummaryOptionsModal = ({messages, selectedMessageId, setMessageStates, set
         }
       }));
     } catch (error) {
+      console.error("Summarization error:", error);
       setMessageStates(prev => ({
         ...prev,
         [messageId]: {
           ...prev[messageId],
           isSummarizing: false,
-          summaryError: error.message
+          summaryError: "Something went wrong generating the summary. Please try again."
         }
       }));
+    } finally {
+      setShowSummaryModal(false);
     }
-    setShowSummaryModal(false);
   };
 
   return (
@@ -112,6 +159,23 @@ const SummaryOptionsModal = ({messages, selectedMessageId, setMessageStates, set
           </select>
           <div className="sr-only" id="length-description">Select how detailed you want the summary to be</div>
         </div>
+
+        {/* Download progress indicator */}
+        {downloadProgress > 0 && downloadProgress < 100 && (
+          <div className="mt-4">
+            <div className="w-full bg-gray-800 rounded-full h-2.5">
+              <div 
+                className="bg-indigo-500 h-2.5 rounded-full transition-all duration-300"
+                style={{ width: `${downloadProgress}%` }}
+                role="progressbar"
+                aria-valuenow={downloadProgress}
+                aria-valuemin="0"
+                aria-valuemax="100"
+              ></div>
+            </div>
+            <p className="text-sm text-gray-300 mt-2">Downloading model: {downloadProgress}%</p>
+          </div>
+        )}
       </div>
 
       {/* summary action buttons (cancel, summarize) */}

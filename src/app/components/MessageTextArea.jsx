@@ -4,14 +4,83 @@ import React, { useState, useCallback } from 'react'
 
 const MessageTextArea = ({ setMessages, setMessageStates, supportedLanguages, inputError, setInputError }) => {
   const [text, setText] = useState('');
+  const [downloadProgress, setDownloadProgress] = useState(0);
 
   const handleDetect = async(messageId, messageText) => {
+    // Check if browser supports language detection API
+    if (!('ai' in self && 'languageDetector' in self.ai)) {
+      setMessageStates(prev => ({
+        ...prev,
+        [messageId]: {
+          ...prev[messageId],
+          detectedLanguage: '',
+          detectedLanguageLabel: '',
+          isDetecting: false,
+          isSupported: false,
+          detectionError: "Your browser doesn't support the Language Detection API. Please update to a compatible browser like Chrome."
+        }
+      }));
+      return;
+    }
+
     try {
-      const detector = await self.ai.languageDetector.create();
+      // Check language detector capabilities
+      const languageDetectorCapabilities = await self.ai.languageDetector.capabilities();
+      const canDetect = languageDetectorCapabilities.available;
+
+      if (canDetect === 'no') {
+        setMessageStates(prev => ({
+          ...prev,
+          [messageId]: {
+            ...prev[messageId],
+            detectedLanguage: '',
+            detectedLanguageLabel: '',
+            isDetecting: false,
+            isSupported: false,
+            detectionError: "Language detection is not available at the moment. Please try again later."
+          }
+        }));
+        return;
+      }
+
+      let detector;
+      if (canDetect === 'readily') {
+        detector = await self.ai.languageDetector.create();
+      } else {
+        // Need to download model first
+        setDownloadProgress(0);
+        detector = await self.ai.languageDetector.create({
+          monitor(m) {
+            m.addEventListener('downloadprogress', (e) => {
+              const progress = Math.round((e.loaded / e.total) * 100);
+              setDownloadProgress(progress);
+            });
+          },
+        });
+        await detector.ready;
+      }
 
       const result = await detector.detect(messageText);
       
       const detectedCode = result[0].detectedLanguage;
+      
+      // Check if detected language is available
+      const languageAvailability = await languageDetectorCapabilities.languageAvailable(detectedCode);
+      if (languageAvailability !== 'readily') {
+        setMessageStates(prev => ({
+          ...prev,
+          [messageId]: {
+            ...prev[messageId],
+            detectedLanguage: detectedCode,
+            detectedLanguageLabel: `Unsupported language (${detectedCode})`,
+            isDetecting: false,
+            isSupported: false,
+            detectionError: 'This language is not supported for detection.'
+          }
+        }));
+        return;
+      }
+
       const supportedLanguage = supportedLanguages.find(lang => lang.value === detectedCode);
       
       setMessageStates(prev => ({
@@ -118,6 +187,11 @@ const MessageTextArea = ({ setMessages, setMessageStates, supportedLanguages, in
           <span id="message-hint" className="sr-only">
             Press Enter to send. Use Shift + Enter for new line. Message must be at least 20 characters.
           </span>
+          {downloadProgress > 0 && downloadProgress < 100 && (
+            <div className="fixed top-5 right-4 bg-indigo-900/90 text-white text-sm px-3 py-1 rounded-lg backdrop-blur-sm">
+              Downloading model: {downloadProgress}%
+            </div>
+          )}
           <button
             onClick={handleSend}
             className="absolute bottom-4 right-4 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white rounded-xl shadow-lg shadow-indigo-500/30 transition-all duration-200 flex items-center gap-2 group border border-indigo-500/30 hover:border-indigo-400/50 focus:border-indigo-500/50"
