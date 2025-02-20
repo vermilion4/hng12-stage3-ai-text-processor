@@ -146,8 +146,12 @@ const MessageTextArea = ({ setMessages, setMessageStates, supportedLanguages, in
       }
     }));
 
-    // Add message to messages array
-    setMessages(prev => [...prev, { id: messageId, text: text }]);
+    // Add message to messages array with timestamp
+    setMessages(prev => [...prev, { 
+      id: messageId, 
+      text: text,
+      timestamp: new Date().toISOString()
+    }]);
     
     await handleDetect(messageId, text);
     

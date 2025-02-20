@@ -10,6 +10,7 @@ const MessageOutput = ({
   messageStates,
   setMessageStates,
   supportedLanguages,
+  isCompactLayout,
 }) => {
   const chatOutputRef = useRef(null);
   const [showSummaryModal, setShowSummaryModal] = useState(false);
@@ -44,7 +45,7 @@ const MessageOutput = ({
     if (chatOutputRef.current) {
       chatOutputRef.current.scrollTop = chatOutputRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isCompactLayout]);
 
   return (
     <>
@@ -60,39 +61,60 @@ const MessageOutput = ({
 
       <div
         ref={chatOutputRef}
-        className="flex-1 bg-gray-900/30 backdrop-blur-lg rounded-lg p-6 mb-6 overflow-y-auto border border-indigo-500/20 shadow-[0_0_50px_-12px] shadow-indigo-500/30 max-h-[500px]"
+        className={`${
+          isCompactLayout
+            ? 'h-full'
+            : 'bg-gray-900/30 backdrop-blur-lg rounded-lg p-6 mb-6 border border-indigo-500/20 shadow-[0_0_50px_-12px] shadow-indigo-500/30 max-h-[500px]'
+        } overflow-y-auto`}
         aria-label="Message history"
         role="log"
       >
         <div className="space-y-6" id="chat-output" aria-live="polite">
           {messages.length > 0 ? (
-            messages.map((msg) => (
+            messages.map((msg, index) => (
               <article 
                 key={msg.id} 
                 className="relative group"
                 aria-label={`Message ${msg.id}`}
               >
-                <div className="p-6 rounded-xl bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500/20 shadow-lg hover:shadow-indigo-500/10">
+                <div className={`${
+                  isCompactLayout
+                    ? 'p-4 border-b border-indigo-500/20'
+                    : 'p-6 rounded-xl bg-gradient-to-r from-indigo-900/40 to-purple-900/40 border border-indigo-500/20 shadow-lg hover:shadow-indigo-500/10'
+                }`}>
+                  <div className="flex justify-between items-center mb-2">
+                    {
+                      isCompactLayout && 
+                      <p className="text-gray-100 leading-relaxed bg-indigo-500/40 rounded-lg w-fit p-1 flex items-center justify-center text-xs border border-indigo-400/20" role="textbox" aria-label="Message number">
+                        Text {index + 1}
+                      </p>
+                    }
+
+                    {/* add date and time */}
+                    <p className="text-gray-400 text-xs">
+                      {new Date(msg.timestamp || Date.now()).toLocaleString()}
+                    </p>
+                  </div>
                   {/* Message Text Section */}
                   <p className="text-gray-100 leading-relaxed" role="textbox" aria-label="Message content">
                     {msg.text}
                   </p>
 
                   {/* Message Actions Section */}
-                    <MessageActions
-                      messages={messages}
-                      messageStates={messageStates}
-                      setMessageStates={setMessageStates}
-                      supportedLanguages={supportedLanguages}
-                      msg={msg}
-                      setSelectedMessageId={setSelectedMessageId}
-                      setShowSummaryModal={setShowSummaryModal}
-                    />
+                  <MessageActions
+                    messages={messages}
+                    messageStates={messageStates}
+                    setMessageStates={setMessageStates}
+                    supportedLanguages={supportedLanguages}
+                    msg={msg}
+                    setSelectedMessageId={setSelectedMessageId}
+                    setShowSummaryModal={setShowSummaryModal}
+                  />
 
                   {/* Translation Section */}
                   {messageStates[msg.id]?.isTranslating ? (
                     <div 
-                      className="mt-4 p-4 rounded-lg bg-gray-800/50 border border-indigo-500/20"
+                      className={`mt-4 p-4 ${isCompactLayout ? 'bg-gray-800/30' : 'bg-gray-800/50'} rounded-lg border border-indigo-500/20`}
                       role="status"
                       aria-live="polite"
                     >
@@ -114,7 +136,7 @@ const MessageOutput = ({
                   ) : (
                     messageStates[msg.id]?.translatedText && (
                       <div 
-                        className="mt-4 p-3 rounded-lg bg-gray-800/50 border border-indigo-500/20"
+                        className={`mt-4 p-3 rounded-lg ${isCompactLayout ? 'bg-gray-800/30' : 'bg-gray-800/50'} border border-indigo-500/20`}
                         role="region"
                         aria-label="Translation result"
                       >
@@ -140,7 +162,7 @@ const MessageOutput = ({
                   {/* Summary Section */}
                   {messageStates[msg.id]?.isSummarizing ? (
                     <div 
-                      className="mt-4 p-4 rounded-lg bg-gray-800/50 border border-indigo-500/20"
+                      className={`mt-4 p-4 rounded-lg ${isCompactLayout ? 'bg-gray-800/30' : 'bg-gray-800/50'} border border-indigo-500/20`}
                       role="status"
                       aria-live="polite"
                     >
@@ -162,7 +184,7 @@ const MessageOutput = ({
                   ) : (
                     messageStates[msg.id]?.summary && (
                       <div 
-                        className="mt-4 p-3 rounded-lg bg-gray-800/50 border border-indigo-500/20"
+                        className={`mt-4 p-3 rounded-lg ${isCompactLayout ? 'bg-gray-800/30' : 'bg-gray-800/50'} border border-indigo-500/20`}
                         role="region"
                         aria-label="Message summary"
                       >
@@ -183,7 +205,7 @@ const MessageOutput = ({
             ))
           ) : (
             <div 
-              className="mt-4 p-4 rounded-lg bg-gray-800/50 border border-indigo-500/20"
+              className={`mt-4 p-4 rounded-lg ${isCompactLayout ? 'bg-gray-800/30' : 'bg-gray-800/50'} border border-indigo-500/20`}
               role="status"
               aria-label="Empty message history"
             >

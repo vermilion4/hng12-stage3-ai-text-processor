@@ -13,13 +13,13 @@ const MessageActions = ({
   const handleTranslate = async (messageId, sourceLanguage, targetLanguage) => {
     const message = messages.find((msg) => msg.id === messageId);
     if (!message) return;
-    if (!sourceLanguage || !targetLanguage) {
+    if (!sourceLanguage) {
       setMessageStates((prev) => ({
         ...prev,
         [messageId]: {
           ...prev[messageId],
           isTranslating: false,
-          translationError: "Missing source or target language.",
+          translationError: "Missing source language as detection failed.",
         },
       }));
       return;
