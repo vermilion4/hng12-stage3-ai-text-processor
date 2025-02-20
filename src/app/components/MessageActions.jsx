@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef, useEffect } from "react";
 
 const MessageActions = ({
   messages,
@@ -9,6 +9,45 @@ const MessageActions = ({
   setSelectedMessageId,
   setShowSummaryModal,
 }) => {
+  const dropdownRef = useRef(null);
+  const buttonRef = useRef(null);
+
+  // Add position adjustment for dropdown
+  useEffect(() => {
+    if (messageStates[msg.id]?.isOpen && dropdownRef.current && buttonRef.current) {
+      const dropdown = dropdownRef.current;
+      const button = buttonRef.current;
+      const dropdownRect = dropdown.getBoundingClientRect();
+      const buttonRect = button.getBoundingClientRect();
+      
+      // Get the container's boundaries
+      const container = button.closest('[role="log"]') || document.documentElement;
+      const containerRect = container.getBoundingClientRect();
+      
+      // Calculate space below and above the button relative to the container
+      const spaceBelow = containerRect.bottom - buttonRect.bottom;
+      const spaceAbove = buttonRect.top - containerRect.top;
+      
+      // Check if there's more space above or below
+      const shouldShowAbove = spaceBelow < dropdownRect.height && spaceAbove > spaceBelow;
+
+      if (shouldShowAbove) {
+        dropdown.style.bottom = '100%';
+        dropdown.style.top = 'auto';
+        dropdown.style.marginBottom = '0.25rem';
+        dropdown.style.maxHeight = `${Math.min(spaceAbove - 10, 200)}px`; // Cap at 200px height
+      } else {
+        dropdown.style.top = '100%';
+        dropdown.style.bottom = 'auto';
+        dropdown.style.marginTop = '0.25rem';
+        dropdown.style.maxHeight = `${Math.min(spaceBelow - 10, 200)}px`; // Cap at 200px height
+      }
+
+      // Ensure dropdown is scrollable if content exceeds maxHeight
+      dropdown.style.overflowY = 'auto';
+    }
+  }, [messageStates, msg.id]);
+
   // translate message
   const handleTranslate = async (messageId, sourceLanguage, targetLanguage) => {
     const message = messages.find((msg) => msg.id === messageId);
@@ -178,37 +217,66 @@ const MessageActions = ({
         {/* Translate Dropdown and Button */}
         <div className="relative flex items-center flex-wrap gap-2">
           {/* dropdown toggle button */}
-          <button
-            className="dropdown-toggle text-xs text-white font-medium bg-gradient-to-r from-cyan-500/70 to-blue-500/70 px-3 py-2 rounded-lg border border-blue-400/20 shadow-[0_0_15px_-3px] shadow-blue-500/30 backdrop-blur-sm hover:shadow-[0_0_20px_-3px] hover:shadow-blue-400/40 hover:from-cyan-400/70 hover:to-blue-400/70 hover:-translate-y-0.5 transition-all duration-300 ease-out flex items-center gap-2"
-            onClick={() => toggleDropdown(msg.id)}
-            aria-expanded={messageStates[msg.id]?.isOpen}
-            aria-haspopup="listbox"
-            aria-controls={`language-dropdown-${msg.id}`}
-          >
-            <span>
-              Translate to:{" "}
-              {
-                supportedLanguages.find(
-                  (lang) =>
-                    lang.value === messageStates[msg.id]?.selectedLanguage,
-                )?.label
-              }
-            </span>
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
+          <div className="relative">
+            <button
+              ref={buttonRef}
+              className="dropdown-toggle text-xs text-white font-medium bg-gradient-to-r from-cyan-500/70 to-blue-500/70 px-3 py-2 rounded-lg border border-blue-400/20 shadow-[0_0_15px_-3px] shadow-blue-500/30 backdrop-blur-sm hover:shadow-[0_0_20px_-3px] hover:shadow-blue-400/40 hover:from-cyan-400/70 hover:to-blue-400/70 hover:-translate-y-0.5 transition-all duration-300 ease-out flex items-center gap-2"
+              onClick={() => toggleDropdown(msg.id)}
+              aria-expanded={messageStates[msg.id]?.isOpen}
+              aria-haspopup="listbox"
+              aria-controls={`language-dropdown-${msg.id}`}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M19 9l-7 7-7-7"
-              />
-            </svg>
-          </button>
+              <span>
+                Translate to:{" "}
+                {
+                  supportedLanguages.find(
+                    (lang) =>
+                      lang.value === messageStates[msg.id]?.selectedLanguage,
+                  )?.label
+                }
+              </span>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </button>
+
+            {/* dropdown */}
+            {messageStates[msg.id]?.isOpen && (
+              <div
+                ref={dropdownRef}
+                id={`language-dropdown-${msg.id}`}
+                className="language-dropdown absolute left-0 w-48 rounded-lg bg-gray-900/95 backdrop-blur-lg border border-blue-400/20 shadow-lg z-50 overflow-y-auto"
+                role="listbox"
+                aria-label="Select target language"
+              >
+                {supportedLanguages.map((option) => (
+                  <button
+                    key={option.value}
+                    className={`block w-full px-4 py-2 text-left text-xs text-white hover:bg-blue-500/20 transition-colors duration-150 ${messageStates[msg.id]?.selectedLanguage === option.value ? "bg-blue-500/30" : ""}`}
+                    onClick={() => handleLanguageSelect(msg.id, option.value)}
+                    role="option"
+                    aria-selected={
+                      messageStates[msg.id]?.selectedLanguage === option.value
+                    }
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           {/* translate button */}
           <button
             onClick={() =>
@@ -223,33 +291,8 @@ const MessageActions = ({
             disabled={messageStates[msg.id]?.isTranslating}
             aria-busy={messageStates[msg.id]?.isTranslating}
           >
-            {messageStates[msg.id]?.isTranslating
-              ? "Translating..."
-              : "Translate"}
+            {messageStates[msg.id]?.isTranslating ? "Translating..." : "Translate"}
           </button>
-          {/* dropdown */}
-          {messageStates[msg.id]?.isOpen && (
-            <div
-              id={`language-dropdown-${msg.id}`}
-              className="language-dropdown fixed z-50 mt-2 w-48 rounded-lg bg-gray-900/95 backdrop-blur-lg border border-blue-400/20 shadow-lg"
-              role="listbox"
-              aria-label="Select target language"
-            >
-              {supportedLanguages.map((option) => (
-                <button
-                  key={option.value}
-                  className={`block w-full px-4 py-2 text-left text-xs text-white hover:bg-blue-500/20 transition-colors duration-150 ${messageStates[msg.id]?.selectedLanguage === option.value ? "bg-blue-500/30" : ""}`}
-                  onClick={() => handleLanguageSelect(msg.id, option.value)}
-                  role="option"
-                  aria-selected={
-                    messageStates[msg.id]?.selectedLanguage === option.value
-                  }
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Summary Button */}
