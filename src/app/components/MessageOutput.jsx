@@ -205,7 +205,7 @@ const MessageOutput = ({
             ))
           ) : (
             <div 
-              className={`mt-4 p-4 rounded-lg ${isCompactLayout ? 'bg-gray-800/30' : 'bg-gray-800/50'} border border-indigo-500/20`}
+              className={`mt-4 p-4 rounded-lg ${isCompactLayout ? 'bg-transparent text-center' : 'bg-gray-800/50 border border-indigo-500/20'}`}
               role="status"
               aria-label="Empty message history"
             >
