@@ -2,6 +2,7 @@
 import { useState, useMemo, useEffect, useRef } from "react";
 import MessageOutput from "./components/MessageOutput";
 import MessageTextArea from "./components/MessageTextArea";
+import { supportedLanguages } from "./constants/languages";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -59,15 +60,6 @@ export default function Home() {
   }, [isLoading, isCompactLayout]);
 
   const [inputError, setInputError] = useState('');
-
-  const supportedLanguages = [
-    { value: 'en', label: 'English' },
-    { value: 'pt', label: 'Portuguese' },
-    { value: 'es', label: 'Spanish' },
-    { value: 'ru', label: 'Russian' },
-    { value: 'tr', label: 'Turkish' },
-    { value: 'fr', label: 'French' }
-  ];
   
   const starColor = '#8B5CF6';
 
@@ -213,7 +205,6 @@ export default function Home() {
               messages={messages} 
               messageStates={messageStates} 
               setMessageStates={setMessageStates} 
-              supportedLanguages={supportedLanguages} 
               isCompactLayout={isCompactLayout}
             />
           </div>
@@ -223,7 +214,6 @@ export default function Home() {
             <MessageTextArea 
               setMessages={setMessages} 
               setMessageStates={setMessageStates} 
-              supportedLanguages={supportedLanguages} 
               inputError={inputError} 
               setInputError={setInputError} 
             />

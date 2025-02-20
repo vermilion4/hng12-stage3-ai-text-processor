@@ -4,12 +4,12 @@ import React, { useEffect, useRef, useState } from "react";
 import MessageActions from "./MessageActions";
 import Markdown from "react-markdown";
 import SummaryOptionsModal from "./SummaryOptionsModal";
+import { supportedLanguages } from "../constants/languages";
 
 const MessageOutput = ({
   messages,
   messageStates,
   setMessageStates,
-  supportedLanguages,
   isCompactLayout,
 }) => {
   const chatOutputRef = useRef(null);
@@ -105,7 +105,6 @@ const MessageOutput = ({
                     messages={messages}
                     messageStates={messageStates}
                     setMessageStates={setMessageStates}
-                    supportedLanguages={supportedLanguages}
                     msg={msg}
                     setSelectedMessageId={setSelectedMessageId}
                     setShowSummaryModal={setShowSummaryModal}

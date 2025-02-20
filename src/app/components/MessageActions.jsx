@@ -1,10 +1,10 @@
 import React, { useRef, useEffect } from "react";
+import { supportedLanguages } from "../constants/languages";
 
 const MessageActions = ({
   messages,
   messageStates,
   setMessageStates,
-  supportedLanguages,
   msg,
   setSelectedMessageId,
   setShowSummaryModal,

@@ -1,8 +1,9 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
+import { languages } from '../constants/languages';
 
-const MessageTextArea = ({ setMessages, setMessageStates, supportedLanguages, inputError, setInputError }) => {
+const MessageTextArea = ({ setMessages, setMessageStates, inputError, setInputError }) => {
   const [text, setText] = useState('');
   const [downloadProgress, setDownloadProgress] = useState(0);
 
@@ -63,6 +64,7 @@ const MessageTextArea = ({ setMessages, setMessageStates, supportedLanguages, in
       const result = await detector.detect(messageText);
       
       const detectedCode = result[0].detectedLanguage;
+      const detectedCodeLabel = languages.find(lang => lang.value === detectedCode)?.label;
       
       // Check if detected language is available
       const languageAvailability = await languageDetectorCapabilities.languageAvailable(detectedCode);
@@ -72,7 +74,7 @@ const MessageTextArea = ({ setMessages, setMessageStates, supportedLanguages, in
           [messageId]: {
             ...prev[messageId],
             detectedLanguage: detectedCode,
-            detectedLanguageLabel: `Unsupported language (${detectedCode})`,
+            detectedLanguageLabel: `Unsupported language (${detectedCodeLabel || detectedCode})`,
             isDetecting: false,
             isSupported: false,
             detectionError: 'This language is not supported for detection.'
@@ -81,17 +83,15 @@ const MessageTextArea = ({ setMessages, setMessageStates, supportedLanguages, in
         return;
       }
 
-      const supportedLanguage = supportedLanguages.find(lang => lang.value === detectedCode);
-      
       setMessageStates(prev => ({
         ...prev,
         [messageId]: {
           ...prev[messageId],
           detectedLanguage: detectedCode,
-          detectedLanguageLabel: supportedLanguage ? supportedLanguage.label : `Unsupported language (${detectedCode})`,
+          detectedLanguageLabel: detectedCodeLabel,
           isDetecting: false,
-          isSupported: !!supportedLanguage,
-          detectionError: supportedLanguage ? null : 'This language is not supported for translation.'
+          isSupported: !!detectedCodeLabel,
+          detectionError: !detectedCodeLabel ? `This language with code '${detectedCode}' is not in our database.` : null
         }
       }));
     } catch (error) {
