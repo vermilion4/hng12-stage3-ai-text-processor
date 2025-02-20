@@ -120,11 +120,6 @@ const MessageTextArea = ({ setMessages, setMessageStates, inputError, setInputEr
       return;
     }
 
-    if (text.trim().length < 20) {
-      setInputError('Message must be at least 20 characters long.');
-      return;
-    }
-
     const messageId = Date.now().toString();
     
     // Initialize message state first

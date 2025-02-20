@@ -86,7 +86,7 @@ const MessageOutput = ({
                     {
                       isCompactLayout && 
                       <p className="text-gray-100 leading-relaxed bg-indigo-500/40 rounded-lg w-fit p-1 flex items-center justify-center text-xs border border-indigo-400/20" role="textbox" aria-label="Message number">
-                        Text {index + 1}
+                        Message {index + 1}
                       </p>
                     }
 
